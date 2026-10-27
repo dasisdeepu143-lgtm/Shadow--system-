@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#070b18">
+<meta name="description" content="Shadow System — your personal quest and level-up tracker.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>SHADOW SYSTEM</title>
+<style>
+:root{color-scheme:dark;--bg:#070b18;--panel:#101a31;--line:#223b66;--blue:#55b8ff;--cyan:#8be9ff;--muted:#9aacc9;--gold:#ffd36a}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#142b50 0,#070b18 55%);color:#eef6ff;font:16px system-ui,Arial,sans-serif;min-height:100vh}
+header{padding:24px 18px 12px;max-width:850px;margin:auto} .eyebrow{letter-spacing:.22em;color:var(--cyan);font-size:11px;font-weight:800}
+h1{font-size:clamp(28px,7vw,44px);line-height:1;margin:8px 0;text-shadow:0 0 24px #268cff88;letter-spacing:.04em}
+.sub{color:var(--muted);font-size:13px}.wrap{max-width:850px;margin:auto;padding:10px 14px 100px}
+.card{background:linear-gradient(145deg,#12213cdd,#0c1326f2);border:1px solid var(--line);border-radius:18px;padding:17px;margin:10px 0;box-shadow:0 12px 35px #0003}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.12em}
+.rank{font-size:27px;font-weight:900;color:var(--cyan)}.big{font-size:22px;font-weight:800}
+input,button{font:inherit;border-radius:12px;border:1px solid #2c4b78;background:#0a1326;color:#eef6ff;padding:12px}
+input{width:100%;margin:7px 0}button{cursor:pointer;font-weight:700}button.primary{background:linear-gradient(100deg,#176bd0,#1b9dd6);border:0}button:active{transform:scale(.98)}
+.progress{height:10px;background:#07101f;border-radius:20px;overflow:hidden;margin:10px 0}.bar{height:100%;width:0;background:linear-gradient(90deg,#3988ff,#7ff4ff);transition:width .25s}
+nav{position:fixed;bottom:0;left:0;right:0;background:#080e1df2;backdrop-filter:blur(16px);border-top:1px solid #21385b;display:flex;justify-content:center;gap:5px;padding:10px max(8px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom));z-index:5}
+nav button{flex:1;max-width:170px;padding:10px 4px;font-size:12px;border-color:transparent;background:transparent;color:var(--muted)}nav button.active{color:var(--cyan);background:#122847}
+.quest{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid #20304b}.quest:last-child{border:0}.quest input{width:22px;height:22px;margin:0;accent-color:#4fc4ff;flex-shrink:0}.quest .qtext{flex:1}.xp{color:var(--gold);font-weight:800;font-size:12px;white-space:nowrap}
+.hidden{display:none}.muted{color:var(--muted)}.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{padding:14px;background:#091326;border:1px solid #1e3557;border-radius:14px}.stat strong{display:block;font-size:25px;color:var(--cyan)}.small{font-size:12px;color:var(--muted)}.notice{font-size:12px;color:var(--muted);line-height:1.5}
+@media(min-width:650px){.statgrid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="eyebrow">PLAYER SYSTEM • AWAKENING PROTOCOL</div><h1>SHADOW SYSTEM</h1><div class="sub">Every day is a quest. Every action earns XP.</div></header>
+<main class="wrap">
+<section id="home">
+<div class="card"><div class="row"><div><div class="label">Player</div><div class="big" id="playerTitle">New Hunter</div><div class="muted" id="rankLine">E-RANK HUNTER</div></div><div style="text-align:right"><div class="label">Current level</div><div class="rank" id="level">01</div></div></div>
+<div class="progress"><div class="bar" id="xpbar"></div></div><div class="row small"><span id="xpText">0 / 100 XP</span><span id="totalXp">Total XP: 0</span></div></div>
+<div class="statgrid"><div class="stat"><span class="label">Quests today</span><strong id="doneStat">0/4</strong><span class="small">completed</span></div><div class="stat"><span class="label">Streak</span><strong id="streak">0 🔥</strong><span class="small">days active</span></div><div class="stat"><span class="label">Focus</span><strong id="focusStat">25</strong><span class="small">min session</span></div><div class="stat"><span class="label">Rank</span><strong id="rankStat">E</strong><span class="small">hunter class</span></div></div>
+<div class="card"><div class="label">System message</div><p id="message">Your journey begins now, Hunter. Complete your first quest.</p></div>
+</section>
+<section id="quests" class="hidden"><div class="card"><div class="row"><div><div class="label">Daily mission</div><div class="big">Complete your quests</div></div><span class="xp">+25 XP each</span></div><div id="questList"></div><div style="margin-top:14px"><input id="newQuest" placeholder="Add a custom quest…"><button class="primary" style="width:100%" onclick="addQuest()">＋ Add quest</button></div></div></section>
+<section id="training" class="hidden"><div class="card"><div class="label">Training room</div><div class="big">Focus Session</div><p class="muted">Choose a duration. Finish the session to earn XP.</p><div class="row"><button onclick="setTimer(15)">15 min</button><button onclick="setTimer(25)">25 min</button><button onclick="setTimer(45)">45 min</button></div><div class="rank" id="timer" style="font-size:48px;text-align:center;margin:20px 0">25:00</div><div class="row"><button class="primary" onclick="toggleTimer()" id="timerBtn">▶ Start focus</button><button onclick="resetTimer()">↺ Reset</button></div></div><div class="card"><div class="label">Training rule</div><p>Put your phone on silent, focus on one task, and claim your reward only after the timer finishes.</p></div></section>
+<section id="status" class="hidden"><div class="card"><div class="label">Hunter profile</div><div class="big" id="profileName">New Hunter</div><input id="nameInput" maxlength="24" placeholder="Enter player name"><button class="primary" style="width:100%" onclick="saveName()">Save player name</button></div><div class="card"><div class="label">System status</div><div id="statusDetails" class="notice"></div></div><div class="card"><div class="label">Data management</div><button onclick="exportData()">Export save backup</button> <button onclick="resetAll()">Reset progress</button><p class="notice">Progress is saved on this device/browser. Export a backup before clearing browser data or switching phones.</p></div></section>
+</main>
+<nav><button class="active" data-tab="home">⌂ Home</button><button data-tab="quests">☷ Quests</button><button data-tab="training">⚡ Training</button><button data-tab="status">◈ Status</button></nav>
+<script>
+const defaults=[{text:"Study for 25 minutes",done:false},{text:"Revise one difficult topic",done:false},{text:"Move your body for 10 minutes",done:false},{text:"Plan tomorrow's priorities",done:false}];
+let state=JSON.parse(localStorage.getItem("shadowSave")||"null")||{name:"New Hunter",xp:0,total:0,streak:0,lastDay:"",quests:defaults,focus:25};
+let duration=state.focus*60,remaining=duration,interval=null,running=false;
+function save(){localStorage.setItem("shadowSave",JSON.stringify(state));render()}
+function rank(){return state.xp>=2500?"S":state.xp>=1500?"A":state.xp>=900?"B":state.xp>=450?"C":state.xp>=200?"D":"E"}
+function render(){let level=Math.floor(state.xp/100)+1,inside=state.xp%100;document.getElementById("playerTitle").textContent=state.name;document.getElementById("profileName").textContent=state.name;document.getElementById("level").textContent=String(level).padStart(2,"0");document.getElementById("rankLine").textContent=rank()+"-RANK HUNTER";document.getElementById("rankStat").textContent=rank();document.getElementById("xpbar").style.width=inside+"%";document.getElementById("xpText").textContent=inside+" / 100 XP to next level";document.getElementById("totalXp").textContent="Total XP: "+state.total;let done=state.quests.filter(q=>q.done).length;document.getElementById("doneStat").textContent=done+"/"+state.quests.length;document.getElementById("streak").textContent=state.streak+" 🔥";document.getElementById("focusStat").textContent=state.focus;document.getElementById("message").textContent=done===state.quests.length&&done>0?"Daily missions complete. The system acknowledges your effort, Hunter.":"Your journey begins now, Hunter. Complete your next quest.";document.getElementById("questList").innerHTML=state.quests.map((q,i)=>`<div class="quest"><input type="checkbox" ${q.done?"checked":""} onchange="toggleQuest(${i})"><div class="qtext">${esc(q.text)}${q.done?'<div class="small">Mission complete</div>':''}</div><span class="xp">${q.done?"CLAIMED":"+25 XP"}</span></div>`).join("");document.getElementById("statusDetails").innerHTML=`Level: <b>${level}</b><br>Rank: <b>${rank()}</b><br>Total XP earned: <b>${state.total}</b><br>Quests completed today: <b>${done}</b>`}
+function esc(s){return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function toggleQuest(i){let q=state.quests[i];q.done=!q.done;if(q.done){state.xp+=25;state.total+=25;const day=new Date().toDateString();if(state.lastDay!==day){state.streak+=1;state.lastDay=day}}else{state.xp=Math.max(0,state.xp-25);state.total=Math.max(0,state.total-25)}save()}
+function addQuest(){let input=document.getElementById("newQuest"),t=input.value.trim();if(!t)return;state.quests.push({text:t,done:false});input.value="";save()}
+function saveName(){let n=document.getElementById("nameInput").value.trim();if(n){state.name=n;save()}}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x===b));["home","quests","training","status"].forEach(id=>document.getElementById(id).classList.toggle("hidden",id!==b.dataset.tab));if(b.dataset.tab==="status")document.getElementById("nameInput").value=state.name}));
+function setTimer(m){if(running)return;state.focus=m;duration=m*60;remaining=duration;renderTimer();save()}
+function renderTimer(){document.getElementById("timer").textContent=String(Math.floor(remaining/60)).padStart(2,"0")+":"+String(remaining%60).padStart(2,"0")}
+function toggleTimer(){if(running){clearInterval(interval);running=false;document.getElementById("timerBtn").textContent="▶ Resume focus";return}running=true;document.getElementById("timerBtn").textContent="Ⅱ Pause";interval=setInterval(()=>{remaining--;renderTimer();if(remaining<=0){clearInterval(interval);running=false;state.xp+=50;state.total+=50;document.getElementById("timerBtn").textContent="▶ Start focus";alert("FOCUS SESSION COMPLETE! +50 XP");remaining=duration;renderTimer();save()}},1000)}
+function resetTimer(){clearInterval(interval);running=false;remaining=duration;renderTimer();document.getElementById("timerBtn").textContent="▶ Start focus"}
+function exportData(){let blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="shadow-system-save.json";a.click();URL.revokeObjectURL(a.href)}
+function resetAll(){if(confirm("Reset all Shadow System progress? This cannot be undone.")){localStorage.removeItem("shadowSave");state={name:"New Hunter",xp:0,total:0,streak:0,lastDay:"",quests:defaults.map(q=>({...q})),focus:25};save();resetTimer()}}
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+render();renderTimer();
+</script>
+</body></html>
